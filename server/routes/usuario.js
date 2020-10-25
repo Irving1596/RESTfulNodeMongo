@@ -130,7 +130,7 @@ app.delete('/usuario/:id', function(req, res) {
             return res.status(400).json({
                 ok: false,
                 err: {
-                    message: 'Usuario no encontrado'
+                    message: 'usuario no encontrado'
                 }
             });
         }
