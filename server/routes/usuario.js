@@ -6,6 +6,8 @@ const _ = require('underscore');
 const Usuario = require('../models/usuario');
 
 const app = express();
+const { googleVerify } = require('../../helpers/google-verify');
+const { generarJWT } = require('../../helpers/jwt');
 
 
 app.get('/usuario', function(req, res) {
@@ -144,6 +146,52 @@ app.delete('/usuario/:id', function(req, res) {
 
 
 
+});
+
+app.post('/google', async(req, res) => {
+
+    const googleToken = req.body.token;
+
+    try {
+
+        const { name, email, picture } = await googleVerify(googleToken);
+
+        const usuarioDB = await Usuario.findOne({ email });
+        let usuario;
+
+        if (!usuarioDB) {
+            // si no existe el usuario
+            usuario = new Usuario({
+                nombre: name,
+                email,
+                password: '@@@',
+                img: picture,
+                google: true
+            });
+        } else {
+            // existe usuario
+            usuario = usuarioDB;
+            usuario.google = true;
+        }
+
+        // Guardar en DB
+        await usuario.save();
+
+        // Generar el TOKEN - JWT
+        const token = await generarJWT(usuario.id);
+
+        return res.json({
+            ok: true,
+            token
+        });
+
+    } catch (error) {
+
+        res.status(401).json({
+            ok: false,
+            msg: 'Token no es correcto',
+        });
+    }
 });
 
 

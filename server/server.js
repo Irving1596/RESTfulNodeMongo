@@ -1,4 +1,5 @@
 require('./config/config');
+require('dotenv').config();
 
 const express = require('express');
 const mongoose = require('mongoose');
@@ -14,7 +15,8 @@ app.use(bodyParser.urlencoded({ extended: false }))
 // parse application/json
 app.use(bodyParser.json())
 
-
+// habilitar la carpeta public
+app.use(express.static('public'));
 app.use(require('./routes/usuario'));
 
 
